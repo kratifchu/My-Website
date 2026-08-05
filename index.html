@@ -140,6 +140,229 @@
   <script>
     (function(){
       const quotes = [
+        {"q":"The only way to do great work is to love what you do.","a":"Steve Jobs"},
+        {"q":"Don't watch the clock; do what it does. Keep going.","a":"Sam Levenson"},
+        {"q":"The future depends on what you do today.","a":"Mahatma Gandhi"},
+        {"q":"It does not matter how slowly you go as long as you do not stop.","a":"Confucius"},
+        {"q":"Success is the sum of small efforts repeated day in and day out.","a":"Robert Collier"},
+        {"q":"Believe you can and you're halfway there.","a":"Theodore Roosevelt"},
+        {"q":"Start where you are. Use what you have. Do what you can.","a":"Arthur Ashe"},
+        {"q":"Dream big and dare to fail.","a":"Norman Vaughan"},
+        {"q":"Act as if what you do makes a difference. It does.","a":"William James"},
+        {"q":"You are never too old to set another goal or to dream a new dream.","a":"C.S. Lewis"},
+        {"q":"Keep your face always toward the sunshine—and shadows will fall behind you.","a":"Walt Whitman"},
+        {"q":"The harder the conflict, the more glorious the triumph.","a":"Thomas Paine"},
+        {"q":"Little by little, a little becomes a lot.","a":"Tanzanian Proverb"},
+        {"q":"Perseverance is failing 19 times and succeeding the 20th.","a":"Julie Andrews"},
+        {"q":"You miss 100% of the shots you don't take.","a":"Wayne Gretzky"},
+        {"q":"The secret of getting ahead is getting started.","a":"Mark Twain"},
+        {"q":"Do something today that your future self will thank you for.","a":"Unknown"},
+        {"q":"Don't limit your challenges. Challenge your limits.","a":"Unknown"},
+        {"q":"Turn your wounds into wisdom.","a":"Oprah Winfrey"},
+        {"q":"The best time to plant a tree was 20 years ago. The second best time is now.","a":"Chinese Proverb"}
+      ];
+
+      const quoteEl = document.getElementById('quote');
+      const authorEl = document.getElementById('author');
+      const newBtn = document.getElementById('newBtn');
+      const copyBtn = document.getElementById('copyBtn');
+      const tweetBtn = document.getElementById('tweetBtn');
+      const pauseBtn = document.getElementById('pauseBtn');
+
+      let currentIndex = -1;
+      let autoTimer = null;
+      let paused = false;
+
+      function pickRandomIndex(){
+        if(quotes.length === 0) return -1;
+        let i;
+        do { i = Math.floor(Math.random() * quotes.length); } while (i === currentIndex && quotes.length > 1);
+        return i;
+      }
+
+      function showQuote(index){
+        if(index < 0) return;
+        currentIndex = index;
+        // fade out
+        quoteEl.style.opacity = 0;
+        quoteEl.style.transform = 'translateY(6px)';
+        authorEl.style.opacity = 0;
+        setTimeout(() => {
+          quoteEl.textContent = '“' + quotes[index].q + '”';
+          authorEl.textContent = quotes[index].a ? '— ' + quotes[index].a : '';
+          // fade in
+          quoteEl.style.opacity = 1;
+          quoteEl.style.transform = 'translateY(0)';
+          authorEl.style.opacity = 1;
+        }, 200);
+      }
+
+      function nextQuote(){
+        showQuote(pickRandomIndex());
+      }
+
+      function copyCurrent(){
+        if(currentIndex < 0) return;
+        const text = quotes[currentIndex].q + (quotes[currentIndex].a ? ' — ' + quotes[currentIndex].a : '');
+        navigator.clipboard?.writeText(text).then(() => {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(()=> copyBtn.textContent = 'Copy', 1500);
+        }, ()=> {
+          copyBtn.textContent = 'Copy';
+        });
+      }
+
+      function tweetCurrent(){
+        if(currentIndex < 0) return;
+        const text = encodeURIComponent('"' + quotes[currentIndex].q + '"' + (quotes[currentIndex].a ? ' — ' + quotes[currentIndex].a : ''));
+        const url = 'https://twitter.com/intent/tweet?text=' + text;
+        window.open(url, '_blank', 'noopener');
+      }
+
+      function startAuto(){
+        stopAuto();
+        autoTimer = setInterval(() => {
+          if(!paused) nextQuote();
+        }, 10000); // every 10 seconds
+        pauseBtn.textContent = 'Pause';
+      }
+
+      function stopAuto(){
+        if(autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+      }
+
+      newBtn.addEventListener('click', () => { nextQuote(); });
+      copyBtn.addEventListener('click', copyCurrent);
+      tweetBtn.addEventListener('click', tweetCurrent);
+      pauseBtn.addEventListener('click', () => {
+        paused = !paused;
+        pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      });
+
+      // keyboard: space = new quote
+      window.addEventListener('keydown', (e) => {
+        if(e.code === 'Space' && document.activeElement.tagName !== 'BUTTON' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+          e.preventDefault();
+          nextQuote();
+        }
+      });
+
+      // Initialize
+      nextQuote();
+      startAuto();
+
+      // accessible announcements for assistive tech
+      quoteEl.setAttribute('role', 'text');
+      authorEl.setAttribute('role', 'note');
+    })();
+  </script>
+</body>
+</html>      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      transition:transform .25s ease, box-shadow .25s ease;
+    }
+    .card:active{ transform:translateY(2px); }
+    .title{
+      margin:0 0 8px 0;
+      font-weight:700;
+      font-size:20px;
+      color:#222;
+      letter-spacing:0.2px;
+    }
+    .subtitle{
+      margin:0 0 20px 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .quote{
+      font-size:22px;
+      line-height:1.4;
+      color:#111;
+      margin:8px 0 18px 0;
+      min-height:86px;
+      opacity:1;
+      transition:opacity .4s ease, transform .4s ease;
+    }
+    .author{
+      font-size:15px;
+      color:var(--accent);
+      font-weight:600;
+      margin-bottom:18px;
+    }
+    .controls{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    button{
+      background:#fff;
+      border:1px solid rgba(0,0,0,0.06);
+      padding:10px 14px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      color:#222;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    button:hover{ transform:translateY(-3px); box-shadow:0 6px 16px rgba(0,0,0,0.08); }
+    .primary{
+      background:linear-gradient(90deg,var(--accent),#1a7be0);
+      color:#fff;
+      border: none;
+    }
+    .small{
+      padding:8px 10px;
+      font-size:13px;
+      border-radius:7px;
+    }
+    .attribution{
+      margin-top:14px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    footer{
+      margin-top:18px;
+      text-align:center;
+      color:rgba(255,255,255,0.9);
+      font-size:13px;
+      opacity:0.9;
+    }
+    @media (max-width:420px){
+      .quote{ font-size:18px; }
+      .card{ padding:20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main">
+    <div class="card" aria-live="polite">
+      <h1 class="title">Daily Motivation</h1>
+      <p class="subtitle">A small quote to lift your spirits — refreshed randomly.</p>
+
+      <div id="quote" class="quote">Loading...</div>
+      <div id="author" class="author"></div>
+
+      <div class="controls" role="group" aria-label="Quote controls">
+        <button id="newBtn" class="primary">New Quote</button>
+        <button id="copyBtn" class="small">Copy</button>
+        <button id="tweetBtn" class="small">Tweet</button>
+        <button id="pauseBtn" class="small">Pause</button>
+      </div>
+
+      <div class="attribution">Quotes are curated and in the public domain or credited.</div>
+    </div>
+
+    <footer style="margin-top:14px;">
+      Tip: Press the spacebar to get a new quote.
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const quotes = [
         {q: "The only way to do great work is to love what you do.", a: "Steve Jobs"},
         {q: "Don't watch the clock; do what it does. Keep going.", a: "Sam Levenson"},
         {q: "The future depends on what you do today.", a: "Mahatma Gandhi"},
